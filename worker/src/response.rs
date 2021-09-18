@@ -14,6 +14,7 @@ pub enum ResponseBody {
 }
 
 const CONTENT_TYPE: &str = "content-type";
+const LOCATION: &str = "location";
 
 /// A [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) representation for
 /// working with or returning a response to a `Request`.
@@ -104,6 +105,19 @@ impl Response {
             body: ResponseBody::Body(msg.into().into_bytes()),
             headers: Headers::new(),
             status_code: status,
+        })
+    }
+
+    /// Create an Response to redirect to another URL. The status code is optional and will default
+    /// to 302 if not provided.
+    pub fn redirect(url: impl Into<String>, status: Option<u16>) -> Result<Self> {
+        let mut headers = Headers::new();
+        headers.set(CONTENT_TYPE, "text/plain")?;
+        headers.set(LOCATION, &url.into())?;
+        Ok(Self {
+            body: ResponseBody::Empty,
+            headers,
+            status_code: status.unwrap_or(302),
         })
     }
 
